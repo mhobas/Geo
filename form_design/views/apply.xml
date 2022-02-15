@@ -1,0 +1,306 @@
+<odoo>
+    <record id="form_apply_form_view" model="ir.ui.view">
+        <field name="name">form.apply</field>
+        <field name="model">form.apply</field>
+        <field name="arch" type="xml">
+            <form string="">
+                <header>
+                    <button name="confirm" type="object" states="draft" string="Register"/>
+                    <button name="set_close" type="object" states="draft" string="Set Close"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="view_form_fill_in_line" string="Lines" type="object"
+                                icon="fa-list"/>
+                    </div>
+                    <h2 class="o_row d-flex justify-content-between">
+                        <span>
+                            <field name="complete_name" readonly="1"/>
+                        </span>
+                    </h2>
+                    <group>
+                        <group>
+                            <field name="form_id" attrs="{'readonly':[('state','!=','draft')]}"/>
+                            <field name="allow_add" />
+                        </group>
+                        <group>
+                            <field name="partner_id" attrs="{'readonly':[('state','!=','draft')]}"/>
+                            <field name="date" attrs="{'readonly':[('state','!=','draft')]}"/>
+                        </group>
+                    </group>
+
+                    <field name="apply_ids" context="{'default_form_id': form_id}">
+                        <tree create="1" edit="0">
+                            <field name="form_line_id"/>
+                            <field name="question_type"/>
+                            <field name="answer" force_save="1"/>
+                            <field name="note"/>
+                            <field name="form_id"  invisible="1"/>
+                        </tree>
+                    </field>
+
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids" options="{'post_refresh': 'recipients'}"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    <record id="form_apply_tree_view" model="ir.ui.view">
+        <field name="name">form.apply</field>
+        <field name="model">form.apply</field>
+        <field name="arch" type="xml">
+            <tree string="">
+                <field name="complete_name"/>
+                <field name="form_id"/>
+                <field name="partner_id"/>
+                <field name="date"/>
+            </tree>
+        </field>
+    </record>
+    <record id="form_apply_line_form_view" model="ir.ui.view">
+        <field name="name">form.apply.line</field>
+        <field name="model">form.apply.line</field>
+        <field name="arch" type="xml">
+            <form string="" create="0" edit="0">
+                <sheet>
+                    <h2 class="o_row d-flex justify-content-between">
+                        <span>
+                            <field name="question_type" readonly="1" invisible="1"/>
+                            <field name="form_line_id" attrs="{'readonly':[('id','!=',False)]}"/>
+                             <field name="form_id" invisible="1"/>
+                             <field name="id" invisible="1"/>
+
+                        </span>
+
+                    </h2>
+                    <group>
+
+                        <group>
+                            <field name="numerical_box" string="Answer"
+                                   attrs="{'invisible':[('question_type','!=','numerical_box')],'required':[('question_type','=','numerical_box')]}"/>
+                            <field name="text_char" string="Answer"
+                                   attrs="{'invisible':[('question_type','!=','char_box')],'required':[('question_type','=','char_box')]}"/>
+                            <field name="text" string="Answer"
+                                   attrs="{'invisible':[('question_type','!=','text_box')],'required':[('question_type','=','text_box')]}"/>
+                            <field name="date" string="Answer" force_save="1"
+                                   attrs="{'invisible':[('question_type','!=','date')],'required':[('question_type','=','date')]}"/>
+                            <field name="check" string="Answer"
+                                   attrs="{'invisible':[('question_type','!=','check')],'required':[('question_type','=','check')]}"/>
+                            <field name="date_time" string="Answer"
+                                   attrs="{'invisible':[('question_type','!=','datetime')],'required':[('question_type','=','datetime')]}"/>
+                            <field name="suggested_id" widget="selection" string="Answer"
+                                   attrs="{'invisible':[('question_type','!=','simple_choice')],'required':[('question_type','=','simple_choice')]}"/>
+                            <field name="suggested_ids" widget="many2many_checkboxes" string="Answer"
+                                   attrs="{'invisible':[('question_type','!=','multiple_choice')],'required':[('question_type','=','multiple_choice')]}"/>
+                            <field name="note"/>
+                        </group>
+                        <field name="matrix_answer_type" readonly="1" invisible="1"/>
+
+                        <field name="answers_ids" widget="x2many_2d_matrix" field_x_axis="val_name" field_y_axis="name"
+                               field_value="check"
+                               string="Answer"
+                               attrs="{'invisible':['|',('question_type','!=','matrix'),('matrix_answer_type','!=','boolean')],'required':[('question_type','=','matrix')]}">
+                            <tree>
+                                <field name="val_name"/>
+                                <field name="name"/>
+                                <field name="check"/>
+                                <field name="form_line_id"/>
+                            </tree>
+                        </field>
+                        <field name="answers_text_ids" widget="x2many_2d_matrix" field_x_axis="val_name"
+                               field_y_axis="name" field_value="text"
+                               string="Answer"
+                               attrs="{'invisible':['|',('question_type','!=','matrix'),('matrix_answer_type','!=','text')],'required':[('question_type','=','matrix')]}">
+                            <tree>
+                                <field name="val_name"/>
+                                <field name="name"/>
+                                <field name="text"/>
+                                <field name="form_line_id"/>
+                            </tree>
+                        </field>
+                        <field name="answers_date_ids" widget="x2many_2d_matrix" field_x_axis="val_name"
+                               field_y_axis="name" field_value="date"
+                               string="Answer"
+                               attrs="{'invisible':['|',('question_type','!=','matrix'),('matrix_answer_type','!=','date')],'required':[('question_type','=','matrix')]}">
+                            <tree>
+                                <field name="val_name"/>
+                                <field name="name"/>
+                                <field name="date"/>
+                                <field name="form_line_id"/>
+                            </tree>
+                        </field>
+                        <field name="answers_datetime_ids" widget="x2many_2d_matrix" field_x_axis="val_name"
+                               field_y_axis="name" field_value="date_time"
+                               string="Answer"
+                               attrs="{'invisible':['|',('question_type','!=','matrix'),('matrix_answer_type','!=','datetime')],'required':[('question_type','=','matrix')]}">
+                            <tree>
+                                <field name="val_name"/>
+                                <field name="name"/>
+                                <field name="date_time"/>
+                                <field name="form_line_id"/>
+                            </tree>
+                        </field>
+                        <field name="answers_char_ids" widget="x2many_2d_matrix" field_x_axis="val_name"
+                               field_y_axis="name" field_value="textChar"
+                               string="Answer"
+                               attrs="{'invisible':['|',('question_type','!=','matrix'),('matrix_answer_type','!=','char')],'required':[('question_type','=','matrix')]}">
+                            <tree>
+                                <field name="val_name"/>
+                                <field name="name"/>
+                                <field name="textChar"/>
+                                <field name="form_line_id"/>
+                            </tree>
+                        </field>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="form_apply_line_tree_view" model="ir.ui.view">
+        <field name="name">form.apply.line</field>
+        <field name="model">form.apply.line</field>
+        <field name="arch" type="xml">
+            <tree string="" create="0" edit="0">
+                <field name="apply_id"/>
+                <field name="name" readonly="1"/>
+                <field name="question_type" readonly="1"/>
+                <field name="answer" readonly="1"/>
+            </tree>
+
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="form_apply_action_window">
+        <field name="name">Form Fill Out</field>
+        <field name="res_model">form.apply</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <record model="ir.actions.act_window" id="form_apply_line_action_window">
+        <field name="name">Form Fill Out Line</field>
+        <field name="res_model">form.apply.line</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem name="Form Fill Out" parent="form_design_menu_root" action="form_apply_action_window"
+              id="form_apply_menu_root"/>
+
+    <menuitem name="Form Fill Out Line" parent="form_design_menu_root" action="form_apply_line_action_window"
+              id="form_apply_line_menu_root"/>
+
+    <record id="form_apply_line_form_view2" model="ir.ui.view">
+        <field name="name">form.apply.line</field>
+        <field name="model">form.apply.line</field>
+        <field name="arch" type="xml">
+            <form string="" create="0" edit="0">
+                <sheet>
+                    <h2 class="o_row d-flex justify-content-between">
+                        <span>
+                           <field name="form_line_id" attrs="{'readonly':[('id','!=',False)]}"/>
+
+                            <field name="name" readonly="1" invisible="1"/>
+                            <field name="question_type" readonly="1" invisible="1"/>
+                            <field name="form_id" invisible="1"/>
+                            <field name="id" invisible="1"/>
+                        </span>
+
+                    </h2>
+                    <group >
+
+                        <group>
+                            <field name="numerical_box" string="Answer"
+                                   attrs="{'invisible':[('question_type','!=','numerical_box')],'required':[('question_type','=','numerical_box')]}"/>
+
+                            <field name="text_char" string="Answer"
+                                   attrs="{'invisible':[('question_type','!=','char_box')],'required':[('question_type','=','char_box')]}"/>
+                            <field name="text" string="Answer"
+                                   attrs="{'invisible':[('question_type','!=','text_box')],'required':[('question_type','=','text_box')]}"/>
+                            <field name="date" string="Answer" force_save="1"
+                                   attrs="{'invisible':[('question_type','!=','date')],'required':[('question_type','=','date')]}"/>
+                            <field name="check" string="Answer"
+                                   attrs="{'invisible':[('question_type','!=','check')],'required':[('question_type','=','check')]}"/>
+                            <field name="date_time" string="Answer"
+                                   attrs="{'invisible':[('question_type','!=','datetime')],'required':[('question_type','=','datetime')]}"/>
+                            <field name="suggested_id" widget="selection" string="Answer"
+                                   attrs="{'invisible':[('question_type','!=','simple_choice')],'required':[('question_type','=','simple_choice')]}"/>
+
+                            <field name="suggested_ids" widget="many2many_checkboxes" string="Answer"
+                                   attrs="{'invisible':[('question_type','!=','multiple_choice')],'required':[('question_type','=','multiple_choice')]}"/>
+                           <field name="note"/>
+
+                        </group>
+                        <field name="matrix_answer_type" readonly="1" invisible="1"/>
+
+                        <field name="answers_ids" widget="x2many_2d_matrix" field_x_axis="val_name" field_y_axis="name"
+                               field_value="check"
+                               string="Answer"
+                               attrs="{'invisible':['|',('question_type','!=','matrix'),('matrix_answer_type','!=','boolean')],'required':[('question_type','=','matrix')]}">
+                            <tree>
+                                <field name="val_name"/>
+                                <field name="name"/>
+                                <field name="check"/>
+                                <field name="form_line_id"/>
+                            </tree>
+                        </field>
+                        <field name="answers_text_ids" widget="x2many_2d_matrix" field_x_axis="val_name"
+                               field_y_axis="name" field_value="text"
+                               string="Answer"
+                               attrs="{'invisible':['|',('question_type','!=','matrix'),('matrix_answer_type','!=','text')],'required':[('question_type','=','matrix')]}">
+                            <tree>
+                                <field name="val_name"/>
+                                <field name="name"/>
+                                <field name="text"/>
+                                <field name="form_line_id"/>
+                            </tree>
+                        </field>
+                        <field name="answers_date_ids" widget="x2many_2d_matrix" field_x_axis="val_name"
+                               field_y_axis="name" field_value="date"
+                               string="Answer"
+                               attrs="{'invisible':['|',('question_type','!=','matrix'),('matrix_answer_type','!=','date')],'required':[('question_type','=','matrix')]}">
+                            <tree>
+                                <field name="val_name"/>
+                                <field name="name"/>
+                                <field name="date"/>
+                                <field name="form_line_id"/>
+                            </tree>
+                        </field>
+                        <field name="answers_datetime_ids" widget="x2many_2d_matrix" field_x_axis="val_name"
+                               field_y_axis="name" field_value="date_time"
+                               string="Answer"
+                               attrs="{'invisible':['|',('question_type','!=','matrix'),('matrix_answer_type','!=','datetime')],'required':[('question_type','=','matrix')]}">
+                            <tree>
+                                <field name="val_name"/>
+                                <field name="name"/>
+                                <field name="date_time"/>
+                                <field name="form_line_id"/>
+                            </tree>
+                        </field>
+                        <field name="answers_char_ids" widget="x2many_2d_matrix" field_x_axis="val_name"
+                               field_y_axis="name" field_value="textChar"
+                               string="Answer"
+                               attrs="{'invisible':['|',('question_type','!=','matrix'),('matrix_answer_type','!=','char')],'required':[('question_type','=','matrix')]}">
+                            <tree>
+                                <field name="val_name"/>
+                                <field name="name"/>
+                                <field name="textChar"/>
+                                <field name="form_line_id"/>
+                            </tree>
+                        </field>
+
+                    </group>
+
+                </sheet>
+
+                <footer>
+                    <button name="confirm" type="object" string="Next"/>
+                    <button string="Discard" special="cancel" class="btn-secondary" close="1"/>
+                </footer>
+            </form>
+
+        </field>
+    </record>
+</odoo>
