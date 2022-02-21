@@ -44,26 +44,21 @@
                         <group>
                             <group>
                                 <field name="code" attrs="{'invisible':[('state','!=','confirm')]}" readonly="1"/>
-
                                 <field name="payment_type" widget="radio"
                                        attrs="{'readonly':[('state','=','confirm')]}"/>
                                 <field name="amount" attrs="{'readonly':[('state','=','confirm')]}"/>
-
-                                <field name="treasury" attrs="{'readonly':[('state','=','confirm')]}"/>
-                                <field name="account_from"
-                                       attrs="{'invisible':[('payment_type','!=','transfer_money')],'required':[('payment_type','=','transfer_money')]}"/>
-
-                                <field name="account_to"
-                                       attrs="{'invisible':[('payment_type','!=','transfer_money')],'required':[('payment_type','=','transfer_money')]}"/>
-
-                                <field name="employee" attrs="{'readonly':[('state','=','confirm')]}"/>
-
-
-                                <field name="customer" attrs="{'readonly':[('state','=','confirm')]}"/>
+                                <field name="treasury"  attrs="{'readonly':[('state','=','confirm')],'required':[('payment_type','!=','transfer_money')],'invisible':[('payment_type','=','transfer_money')]}"/>
                                 <field name="date" attrs="{'readonly':[('state','=','confirm')]}"/>
 
+                                <field name="account_from"
+                                       attrs="{'invisible':[('payment_type','!=','transfer_money')],'required':[('payment_type','=','transfer_money')]}"/>
+                                <field name="account_to"
+                                       attrs="{'invisible':[('payment_type','!=','transfer_money')],'required':[('payment_type','=','transfer_money')]}"/>
+                                <field name="employee" attrs="{'readonly':[('state','=','confirm')]}"/>
+                                <field name="account_id" attrs="{'readonly':[('state','=','confirm')],'invisible':[('payment_type','not in',('expense_money','receive_money'))]}"/>
+                                <field name="customer" attrs="{'readonly':[('state','=','confirm')]}"/>
                                 <field name="description"
-                                       attrs="{'readonly':[('state','=','confirm')],'required':[('payment_type','=','expense_money')],'invisible':[('payment_type','!=','expense_money')]}"/>
+                                       attrs="{'readonly':[('state','=','confirm')],'invisible':[('payment_type','!=','expense_money')]}"/>
                                 <field name="note" attrs="{'readonly':[('state','=','confirm')]}"/>
 
 
@@ -96,7 +91,7 @@
         <!-- Top menu item -->
 
         <menuitem name="Personal Expense"
-                  web_icon="alfolk_expense_personal,static/description/expenses.png"
+                  web_icon="alfolk_expense_personal,static/description/expense.png"
                   id="alfolk_expense_personal_menu_root"
                   action="alfolk_expense_personal_action_window"/>
 
@@ -110,7 +105,7 @@
             <field name="name">Reference</field>
             <field name="code">code.expense</field>
             <field name="padding">5</field>
-            <field name="prefix">Exp</field>
+            <field name="prefix">EX</field>
         </record>
 
     </data>

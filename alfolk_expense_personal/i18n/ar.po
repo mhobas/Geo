@@ -1,5 +1,3 @@
-
-
 #. module: alfolk_expense_personal
 #: model:ir.model.fields.selection,name:alfolk_expense_personal.selection__alfolk_expense_personal__state__draft
 msgid "Draft"
@@ -44,6 +42,21 @@ msgstr "(الاشياء)مقابل"
 #: model:ir.model.fields,field_description:alfolk_expense_personal.field_alfolk_expense_personal__note
 msgid "Note"
 msgstr "ملاحظات"
+
+#. module: alfolk_expense_personal
+#: model:ir.model.fields,field_description:alfolk_expense_personal.field_alfolk_expense_personal__account_id
+msgid "Account"
+msgstr "الحساب"
+
+#. module: alfolk_expense_personal
+#: model:ir.model.fields,field_description:alfolk_expense_personal.field_alfolk_expense_personal__account_from
+msgid "From Account"
+msgstr "من حساب"
+
+#. module: alfolk_expense_personal
+#: model:ir.model.fields,field_description:alfolk_expense_personal.field_alfolk_expense_personal__account_to
+msgid "From Account"
+msgstr "الي حساب"
 
 #. module: alfolk_expense_personal
 #: model:ir.model.fields,field_description:alfolk_expense_personal.field_alfolk_expense_personal__employee
@@ -105,7 +118,13 @@ msgstr "الي تاريخ"
 msgid "Treasury"
 msgstr "الخزينة"
 
+
 #. module: alfolk_expense_personal
 #: model:ir.model.fields,field_description:alfolk_expense_personal.field_alfolk_personal_expense_report__customer
 msgid "Customer"
 msgstr "العميل"
+
+#. module: alfolk_expense_personal
+#: model_terms:ir.ui.view,arch_db:alfolk_expense_personal.alfolk_expense_personal_form
+msgid "Confirm"
+msgstr "تأكيد"

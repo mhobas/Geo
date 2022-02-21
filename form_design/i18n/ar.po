@@ -1,24 +1,17 @@
-
-
 #. module: form_design
 #: model:ir.model.fields.selection,name:form_design.selection__form_apply__state__draft
 msgid "Draft"
 msgstr "جديد"
 
 #. module: form_design
-#: model:ir.model.fields.selection,name:form_design.selection__form_apply__state__confirmed
-msgid "Confirmed"
+#: model:ir.model.fields.selection,name:form_design.selection__form_apply__state__done
+msgid "Closed"
 msgstr "المنتهية"
 
 #. module: form_design
 #: model:ir.model.fields,field_description:form_design.field_form_apply__form_id
 msgid "Form"
 msgstr "إستمارة"
-
-#. module: form_design
-#: model:ir.model.fields,field_description:form_design.field_form_apply__date
-msgid "Date"
-msgstr "التاريخ"
 
 #. module: form_design
 #: model:ir.model.fields.selection,name:form_design.selection__form_design_line__question_type__text_box
@@ -93,6 +86,7 @@ msgstr "مربع الاختيار"
 #: model:ir.model.fields.selection,name:form_design.selection__form_design_line__question_type__date
 #: model:ir.model.fields.selection,name:form_design.selection__form_apply_line__question_type__date
 #: model:ir.model.fields.selection,name:form_design.selection__form_design_line__matrix_answer_type__date
+#: model:ir.model.fields,field_description:form_design.field_form_apply__date
 msgid "Date"
 msgstr "التاريخ"
 
@@ -115,18 +109,8 @@ msgstr "العنوان"
 msgid "Responsible"
 msgstr "المسئول"
 
-#. module: form_design
-#: model:ir.model.fields,field_description:form_design.field_form_apply_line__date
-msgid "Date"
-msgstr "الاجابة"
 
 #. module: form_design
-#: model:ir.model.fields,field_description:form_design.field_form_apply_line__answer
-msgid "Answer"
-msgstr "الاجابة"
-
-#. module: form_design
-#: model:ir.model.fields,field_description:form_design.field_form_design_line__suggested_answer_ids
 #: model:ir.model.fields,field_description:form_design.field_form_design_line__suggested_answer_ids
 msgid "Answers"
 msgstr "الأجابات"
@@ -145,6 +129,7 @@ msgstr "العميل"
 
 #. module: form_design
 #: model_terms:ir.ui.view,arch_db:form_design.form_apply_line_form_view
+#: model:ir.model.fields,field_description:form_design.field_form_apply_line__answer
 msgid "Answer"
 msgstr "الاجابة"
 
@@ -171,13 +156,13 @@ msgstr "الأختيارات"
 #. module: form_design
 #: model:ir.actions.act_window,name:form_design.form_apply_action_window
 #: model:ir.ui.menu,name:form_design.form_apply_menu_root
-msgid "Form Fill In"
+msgid "Form Fill Out"
 msgstr "ملء إستمارة"
 
 #. module: form_design
 #: model:ir.actions.act_window,name:form_design.form_apply_line_action_window
 #: model:ir.ui.menu,name:form_design.form_apply_line_menu_root
-msgid "Form Fill In Line"
+msgid "Form Fill Out Line"
 msgstr "عناصر ملء إستمارة"
 
 #. module: form_design

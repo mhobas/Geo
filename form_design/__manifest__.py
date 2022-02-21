@@ -3,18 +3,16 @@
     'name': "form_design",
 
     'summary': """
-        Short (1 phrase/line) summary of the module's purpose, used as
-        subtitle on modules listing or apps.openerp.com""",
+      free create and fill forms""",
 
     'description': """
-        Long description of module's purpose
     """,
 
     'author': "Alzahraa Gamal",
     'website': "",
     'category': 'Uncategorized',
     'version': '0.1',
-    'depends': ['base', 'mail'],
+    'depends': ['hr', 'mail', 'web_widget_x2many_2d_matrix','partner_category'],
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
@@ -22,7 +20,6 @@
         'views/templates.xml',
         'views/apply.xml',
     ],
-    # only loaded in demonstration mode
     'demo': [
         'demo/demo.xml',
     ],

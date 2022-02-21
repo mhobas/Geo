@@ -1,8 +1,8 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+from calendar import monthrange
 
 WeakDays = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-from calendar import monthrange
 
 
 class ApplyFormDesign(models.Model):
@@ -10,10 +10,16 @@ class ApplyFormDesign(models.Model):
     _description = 'Form Apply'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'complete_name'
-    form_id = fields.Many2one('form.design', 'Form', store=True, index=True, tracking=True)
-    partner_id = fields.Many2one('res.partner', 'Partner', store=True, index=True, tracking=True, required=1)
+    _sql_constraints = [
+        ('form_partner_day_uniq', 'unique(form_id, partner_id, date)',
+         'This form already exist'),
+
+    ]
+    category = fields.Many2one('alfolk.partner.category','Partner Category',related='form_id.category')
+    form_id = fields.Many2one('form.design', 'Form', store=True, index=True, tracking=True, required=1)
+    partner_id = fields.Many2one('res.partner', 'Partner', domain="[('category','=',category)]", store=True, index=True, tracking=True, required=1)
     apply_ids = fields.One2many('form.apply.line', 'apply_id', store=True, index=True, tracking=True)
-    state = fields.Selection([('draft', 'Draft'), ('confirmed', 'Closed')], default='draft', store=True,
+    state = fields.Selection([('draft', 'Draft'), ('done', 'Closed')], default='draft', store=True,
                              tracking=True)
     date = fields.Date('Date', default=fields.Date.today(), tracking=True, store=True, index=True, required=1)
     complete_name = fields.Char('Name', compute='_compute_name', store=True, index=True, tracking=True)
@@ -42,52 +48,26 @@ class ApplyFormDesign(models.Model):
             record.complete_name = name
 
     def set_close(self):
-        self.state = 'confirmed'
+        self.state = 'done'
 
     @api.onchange('form_id')
     def form_change(self):
-        if self.state == 'draft':
+        form_lines = self.apply_ids.filtered(lambda l: l.form_id == self.form_id)
+        if self.state == 'draft' and not form_lines:
             self.apply_ids.unlink()
-            lines = self.apply_ids
+            lines = []
             for line in self.form_id.question_ids:
-                matrix_lines = []
-                if line.question_type == 'matrix':
-                    for m in line.suggested_answer_ids:
-                        if line.matrix_answer_ids:
-                            for c in line.matrix_answer_ids:
-                                matrix_lines.append((0, 0, {
-                                    'name': m.value,
-                                    'val_name': c.value,
 
-                                }))
-                        elif line.matrix_coltype == 'month':
-                            if not self.date:
-                                raise UserError(_('Please Select Date'))
-                            num_days = monthrange(self.date.year, self.date.month)[1]
-                            for c in range(1, num_days + 1):
-                                matrix_lines.append((0, 0, {
-                                    'name': m.value,
-                                    'val_name': c,
-
-                                }))
-                        elif line.matrix_coltype == 'week':
-                            for c in range(0, 7):
-                                matrix_lines.append((0, 0, {
-                                    'name': m.value,
-                                    'val_name': WeakDays[c],
-
-                                }))
-                lines += self.apply_ids.create({
+                lines.append((0, 0, {
                     'name': line.title,
                     'sequence': line.sequence,
                     'form_line_id': line.id,
                     'form_id': self.form_id.id,
-                    'apply_id': self._origin.id,
                     'question_type': line.question_type,
                     'matrix_answer_type': line.matrix_answer_type,
-                    'answers_ids': matrix_lines,
-                })
-            self.apply_ids = lines
+                }))
+                print(line.matrix_answer_type)
+            self.write({'apply_ids': lines})
 
     @api.onchange("form_id")
     def compute_allow_add_line(self):
@@ -98,7 +78,7 @@ class ApplyFormDesign(models.Model):
                 record.allow_add = False
 
     def action_done(self):
-        self.state = 'confirmed'
+        self.state = 'done'
 
     def confirm(self):
         if self.apply_ids.filtered(lambda line: not line.answer or line.question_type == 'matrix'):
@@ -125,7 +105,7 @@ class ApplyFormDesign(models.Model):
                 'target': 'new',
                 'context': {
                     'default_form_id': self.form_id.id,
-                    'default_apply_id': self.id,
+                    'default_apply_id': self._origin.id,
                     'default_form_line_id': self.form_id.question_ids[0].id
                 },
             }
@@ -150,6 +130,43 @@ class FormApplyLine(models.Model):
                 record.name = record.form_line_id.title
                 record.question_type = record.form_line_id.question_type
 
+    @api.depends('form_line_id')
+    @api.onchange('form_line_id')
+    def compute_answer_lines(self):
+        for record in self:
+            answers = record.answers_ids
+            if not record.answers_ids and record.form_line_id:
+                line = record.form_line_id
+                if line.question_type == 'matrix':
+                    for m in line.suggested_answer_ids:
+                        if line.matrix_answer_ids:
+                            for c in line.matrix_answer_ids:
+                                answers += record.answers_ids.create({
+                                    'name': m.value,
+                                    'val_name': c.value,
+
+                                })
+                        elif line.matrix_coltype == 'month':
+                            num_days = monthrange(fields.date.today().year, fields.date.today().month)[1]
+                            for c in range(1, num_days + 1):
+                                answers += record.answers_ids.create({
+                                    'name': m.value,
+                                    'val_name': c,
+
+                                })
+                        elif line.matrix_coltype == 'week':
+                            for c in range(0, 7):
+                                answers += record.answers_ids.create({
+                                    'name': m.value,
+                                    'val_name': WeakDays[c],
+
+                                })
+            record.answers_ids = answers
+            record.answers_text_ids = answers
+            record.answers_date_ids = answers
+            record.answers_datetime_ids = answers
+            record.answers_char_ids = answers
+    state = fields.Selection(related='apply_id.state', store=True)
     sequence = fields.Integer('Label Sequence order', default=10)
     name = fields.Char('Title', store=True, index=True)
     answer = fields.Char('Answer', compute='compute_answer')
@@ -157,21 +174,28 @@ class FormApplyLine(models.Model):
     text_char = fields.Char('Answer', store=True, index=True)
     text = fields.Text('Answer', store=True, index=True)
     numerical_box = fields.Float('Numerical', store=True, index=True)
-    date = fields.Date('Date', store=True, index=True)
+    date = fields.Date('Date', store=True)
     check = fields.Boolean('Check', store=True, index=True)
     date_time = fields.Datetime('Date Time', store=True, index=True)
     form_line_id = fields.Many2one('form.design.line', 'Question', domain="[('form_id','=',form_id)]", store=True,
                                    index=True)
     form_id = fields.Many2one('form.design', 'Form', store=True, index=True)
-    apply_id = fields.Many2one('form.apply')
-    suggested_id = fields.Many2one('form.line.answer', 'Suggested Answer', domain="[('question_id','=',form_line_id)]")
+    apply_id = fields.Many2one('form.apply', ondelete='cascade', index=True, store=True)
+    employee_id = fields.Many2one('hr.employee', 'Responsible Employee', store=True)
+    suggested_id = fields.Many2one('form.line.answer', 'Suggested Answer', domain="[('question_id','=',form_line_id)]",
+                                   store=True)
     suggested_ids = fields.Many2many('form.line.answer', string='Suggested Answer',
                                      domain="[('question_id','=',form_line_id)]")
-    answers_ids = fields.One2many('form.apply.line.matrix', 'form_line_id', string='Matrix Answer', )
-    answers_text_ids = fields.One2many('form.apply.line.matrix', 'form_line_id', string='Matrix Answer', )
-    answers_date_ids = fields.One2many('form.apply.line.matrix', 'form_line_id', string='Matrix Answer', )
-    answers_datetime_ids = fields.One2many('form.apply.line.matrix', 'form_line_id', string='Matrix Answer', )
-    answers_char_ids = fields.One2many('form.apply.line.matrix', 'form_line_id', string='Matrix Answer', )
+    answers_ids = fields.One2many('form.apply.line.matrix', 'form_line_id', string='Matrix Answer', store=True,
+                                  compute='compute_answer_lines')
+    answers_text_ids = fields.One2many('form.apply.line.matrix', 'form_line_id', string='Matrix Answer', store=True,
+                                       compute='compute_answer_lines')
+    answers_date_ids = fields.One2many('form.apply.line.matrix', 'form_line_id', string='Matrix Answer',store=True,
+                                       compute='compute_answer_lines')
+    answers_datetime_ids = fields.One2many('form.apply.line.matrix', 'form_line_id', string='Matrix Answer', store=True,
+                                           compute='compute_answer_lines')
+    answers_char_ids = fields.One2many('form.apply.line.matrix', 'form_line_id', string='Matrix Answer',store=True,
+                                       compute='compute_answer_lines')
     question_type = fields.Selection([
         ('text_box', 'Multiple Lines Text Box'),
         ('char_box', 'Single Line Text Box'),
@@ -188,13 +212,13 @@ class FormApplyLine(models.Model):
                                            ('boolean', 'Check Box'),
                                            ('char', 'Single Line Text Box'),
                                            ('text', 'Multiple Lines Text Box')], string='Matrix Answer Type',
-                                          default='boolean')
+                                          default='boolean', store=True)
 
     def confirm(self):
         ids = self.apply_id.apply_ids.mapped('id')
         ids.sort()
-        if self.id in ids:
-            next_index = ids.index(self.id) + 1
+        if self._origin.id in ids:
+            next_index = ids.index(self._origin.id) + 1
             if next_index < len(ids):
                 return {
                     'name': _('Answers'),
@@ -209,7 +233,8 @@ class FormApplyLine(models.Model):
             else:
                 return {'type': 'ir.actions.act_window_close'}
 
-    @api.onchange('text_char', 'text', 'check','numerical_box','date','date_time','suggested_id' 'suggested_ids','answers_ids')
+    @api.onchange('text_char', 'text', 'check', 'numerical_box', 'date', 'date_time', 'suggested_id' 'suggested_ids',
+                  'answers_ids')
     def compute_answer(self):
         for record in self:
             if record.question_type == 'char_box' and record.text_char:
@@ -227,21 +252,22 @@ class FormApplyLine(models.Model):
             elif record.question_type == 'simple_choice' and record.suggested_id:
                 record.answer = str(record.suggested_id.value)
             elif record.question_type == 'multiple_choice' and record.suggested_ids:
-                record.answer = ','.join([l.value for l in record.suggested_ids])
-            elif record.question_type == 'matrix':
-                record.answer = ','.join([l.name + ' ' + l.val_name for l in record.answers_ids.filtered(lambda x: x.check)])
+                record.answer = ','.join([r.value for r in record.suggested_ids])
+            elif record.question_type == 'matrix' and record.answers_ids:
+                record.answer = ','.join(
+                    [r.name + ' ' + r.val_name for r in record.answers_ids.filtered(lambda x: x.check)])
             else:
-                record.answer=False
+                record.answer = False
 
 
 class FormApplyLineMatrix(models.Model):
     _name = 'form.apply.line.matrix'
     _description = 'Form Apply Line Matrix'
-    check = fields.Boolean('Check')
-    textChar = fields.Char('Answer')
-    date = fields.Date('Answer')
-    date_time = fields.Datetime('Answer')
-    text = fields.Text('Answer')
-    name = fields.Char('Row')
-    val_name = fields.Char('Col')
+    check = fields.Boolean('Check', store=True)
+    textChar = fields.Char('Answer', store=True)
+    date = fields.Date('Answer', store=True)
+    date_time = fields.Datetime('Answer', store=True)
+    text = fields.Text('Answer', store=True)
+    name = fields.Char('Row', store=True)
+    val_name = fields.Char('Col', store=True)
     form_line_id = fields.Many2one('form.apply.line', 'Form Fill IN', ondelete='cascade', index=True)
