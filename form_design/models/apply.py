@@ -166,6 +166,7 @@ class FormApplyLine(models.Model):
             record.answers_date_ids = answers
             record.answers_datetime_ids = answers
             record.answers_char_ids = answers
+            record.answers_v_ids = answers
     state = fields.Selection(related='apply_id.state', store=True)
     sequence = fields.Integer('Label Sequence order', default=10)
     name = fields.Char('Title', store=True, index=True)
@@ -188,6 +189,8 @@ class FormApplyLine(models.Model):
                                      domain="[('question_id','=',form_line_id)]")
     answers_ids = fields.One2many('form.apply.line.matrix', 'form_line_id', string='Matrix Answer', store=True,
                                   compute='compute_answer_lines')
+    answers_v_ids = fields.One2many('form.apply.line.matrix', 'form_line_id', string='Matrix Answer', store=True,
+                                  compute='compute_answer_lines')
     answers_text_ids = fields.One2many('form.apply.line.matrix', 'form_line_id', string='Matrix Answer', store=True,
                                        compute='compute_answer_lines')
     answers_date_ids = fields.One2many('form.apply.line.matrix', 'form_line_id', string='Matrix Answer',store=True,
@@ -209,7 +212,8 @@ class FormApplyLine(models.Model):
         readonly=False, store=True)
     matrix_answer_type = fields.Selection([('date', 'Date'),
                                            ('datetime', 'DateTime'),
-                                           ('boolean', 'Check Box'),
+                                           ('boolean', 'CheckBox'),
+                                           ('numerical_box', 'Numerical Value'),
                                            ('char', 'Single Line Text Box'),
                                            ('text', 'Multiple Lines Text Box')], string='Matrix Answer Type',
                                           default='boolean', store=True)
@@ -264,6 +268,7 @@ class FormApplyLineMatrix(models.Model):
     _name = 'form.apply.line.matrix'
     _description = 'Form Apply Line Matrix'
     check = fields.Boolean('Check', store=True)
+    value = fields.Float('Check', store=True)
     textChar = fields.Char('Answer', store=True)
     date = fields.Date('Answer', store=True)
     date_time = fields.Datetime('Answer', store=True)

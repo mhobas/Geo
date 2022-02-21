@@ -85,7 +85,7 @@
 
                     </h2>
                     <group>
-                                                     <field name="matrix_answer_type" readonly="1" force_save="1" />
+                                                     <field name="matrix_answer_type" readonly="1" force_save="1" invisible="1" />
 
 
                         <group>
@@ -125,6 +125,18 @@
                             <field name="val_name"/>
                             <field name="name"/>
                             <field name="check"/>
+                            <field name="form_line_id"/>
+                        </tree>
+                    </field>
+                  <field name="answers_v_ids" widget="x2many_2d_matrix" field_x_axis="val_name" field_y_axis="name"
+                           field_value="value"
+                           string="Answer"
+                           attrs="{'invisible':['|',('question_type','!=','matrix'),('matrix_answer_type','!=','numerical_box')],
+                           'readonly':[('state','=','done')],'required':[('question_type','=','matrix')]}">
+                        <tree>
+                            <field name="val_name"/>
+                            <field name="name"/>
+                            <field name="value"/>
                             <field name="form_line_id"/>
                         </tree>
                     </field>
@@ -270,12 +282,24 @@
                             <field name="employee_id"/>
                         </group>
                     </group>
-                    <field name="matrix_answer_type" readonly="1" force_save="1"/>
+                    <field name="matrix_answer_type" readonly="1" force_save="1" invisible="1"/>
 
                     <field name="answers_ids" widget="x2many_2d_matrix" field_x_axis="val_name" field_y_axis="name"
                            field_value="check"
                            string="Answer"
                            attrs="{'invisible':['|',('question_type','!=','matrix'),('matrix_answer_type','!=','boolean')],
+                           'readonly':[('state','=','done')],'required':[('question_type','=','matrix')]}">
+                        <tree>
+                            <field name="val_name"/>
+                            <field name="name"/>
+                            <field name="check"/>
+                            <field name="form_line_id"/>
+                        </tree>
+                    </field>
+                    <field name="answers_v_ids" widget="x2many_2d_matrix" field_x_axis="val_name" field_y_axis="name"
+                           field_value="check"
+                           string="Answer"
+                           attrs="{'invisible':['|',('question_type','!=','matrix'),('matrix_answer_type','!=','numerical_box')],
                            'readonly':[('state','=','done')],'required':[('question_type','=','matrix')]}">
                         <tree>
                             <field name="val_name"/>
