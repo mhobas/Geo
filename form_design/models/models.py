@@ -98,6 +98,7 @@ class FormDesignLine(models.Model):
     matrix_answer_type = fields.Selection([('date', 'Date'),
                                            ('datetime', 'DateTime'),
                                            ('boolean', 'CheckBox'),
+                                           ('numerical_box', 'Numerical Value'),
                                            ('char', 'Single Line Text Box'),
                                            ('text', 'Multiple Lines Text Box')], string='Matrix Answer Type',
                                           default='boolean', store=True)

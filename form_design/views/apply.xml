@@ -222,8 +222,7 @@
 
     <menuitem name="Form Fill Out Line" parent="form_design_menu_root" action="form_apply_line_action_window"
               id="form_apply_line_menu_root" sequence="20"/>
-    <menuitem name="Form Answers Line" parent="form_design_menu_root" action="form_answers_line_action_window"
-              id="form_apply_line_menu_answers" sequence="30"/>
+
 
     <record id="form_apply_line_form_view2" model="ir.ui.view">
         <field name="name">form.apply.line</field>
