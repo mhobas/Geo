@@ -15,7 +15,7 @@ class ApplyFormDesign(models.Model):
          'This form already exist'),
 
     ]
-    category = fields.Many2one('alfolk.partner.category','Partner Category',related='form_id.category')
+    category = fields.Many2one('partner.category','Partner Category',related='form_id.category')
     form_id = fields.Many2one('form.design', 'Form', store=True, index=True, tracking=True, required=1)
     partner_id = fields.Many2one('res.partner', 'Partner', domain="[('category','=',category)]", store=True, index=True, tracking=True, required=1)
     apply_ids = fields.One2many('form.apply.line', 'apply_id', store=True, index=True, tracking=True)
